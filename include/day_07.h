@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <numeric>
 
+#include <daw/daw_algorithm.h>
 #include <daw/daw_string_view.h>
 
 namespace daw {
@@ -35,50 +36,75 @@ namespace daw {
 				if( sv.size( ) < 4 ) {
 					return false;
 				}
-				return sv[0] == sv[3] and sv[1] == sv[2] and sv[0] != sv[1] and
-				       sv[2] != sv[3];
+				return sv[0] == sv[3] and sv[1] == sv[2] and sv[0] != sv[1];
 			}
 
-			constexpr bool is_palindrome( daw::string_view sv ) noexcept {
-				while( sv.size( ) >= 4 ) {
-					if( valid_sequence( sv ) ) {
-						return true;
+			constexpr bool all_unique( daw::string_view sv, daw::string_view const sv2 ) {
+				while( sv.size( ) > 1U ) {
+					if( sv.find( sv.front( ), 1 ) != daw::string_view::npos or
+					    sv2.find( sv.front( ) ) != daw::string_view::npos ) {
+						return false;
 					}
 					sv.remove_prefix( );
 				}
-				return false;
+				return true;
 			}
 
-			constexpr size_t is_valid_ipv7( daw::string_view part0,
-			                                daw::string_view part1,
-			                                daw::string_view part2 ) noexcept {
-				auto const p0 = is_palindrome( part0 );
-				auto const p1 = is_palindrome( part1 );
-				auto const p2 = is_palindrome( part2 );
-				return !p1 and ( p0 or p2 ) ? 1U : 0U;
+			constexpr bool has_abba( daw::string_view sv ) noexcept {
+				bool found = false;
+				size_t pos = 0;
+				while( ( sv.size( ) - pos ) >= 4 ) {
+					if( valid_sequence( sv.substr( pos ) ) ) {
+						found = true;
+						break;
+					}
+					++pos;
+				}
+				if( not found ) {
+					return false;
+				}
+				auto p0 = sv.substr( 0, pos );
+				auto p1 = sv.substr( pos + 4 );
+				return all_unique( p0, p1 ) and all_unique( p1, p0 );
 			}
 
-			constexpr size_t count_valid_ipv7( daw::string_view sv ) noexcept {
-				size_t result = 0;
-				while( !sv.empty( ) ) {
-					auto p0 = sv.pop_front( "[" );
-					sv.remove_prefix( );
-					auto p1 = sv.pop_front( "]" );
-					sv.remove_prefix( );
-					auto p2 = sv.substr( 0, sv.find( '[' ) );
-					result += is_valid_ipv7( p0, p1, p2 );
+			constexpr daw::string_view next_ip( daw::string_view &sv ) {
+				auto pos0 = sv.find( '[' );
+				if( pos0 == daw::string_view::npos ) { 
+					return {};
+				}
+				sv.remove_prefix( pos0 );
+				if( sv.empty( ) ) {
+					return {};
+				}
+				sv.remove_prefix( );
+				if( sv.empty( ) ) {
+					return {};
+				}
+				pos0 = sv.find( ']' );
+				if( pos0 == daw::string_view::npos ) {
+					return {};
+				}
+				auto result = sv.pop_front( pos0 );
+				sv.remove_prefix( );
+				return result;
+			}
+			constexpr bool is_valid_ipv7( daw::string_view sv ) noexcept {
+				bool result = true;
+				auto p = next_ip( sv );
+				if( p.empty( ) ) { return false; }
+				while( result and !p.empty( ) ) {
+					result = !has_abba( p );
+					p = next_ip( sv );
 				}
 				return result;
 			}
 
 			template<size_t N>
-			constexpr size_t
-			count_valid_ipv7( std::array<daw::string_view, N> arry ) noexcept {
-				return std::accumulate( begin( arry ), end( arry ), 0ULL,
-				                        []( size_t r, daw::string_view sv ) {
-					                        return r + count_valid_ipv7( sv );
-				                        } );
+			constexpr size_t count_valid_ipv7( std::array<daw::string_view, N> arry ) noexcept {
+				return daw::algorithm::accumulate( begin( arry ), end( arry ), 0ULL,
+				                        []( size_t r, daw::string_view sv ) { return r + ( is_valid_ipv7( sv ) ? 1U : 0U ); } );
 			}
-		} // namespace daw_07
+		} // namespace day_07
 	}   // namespace aoc_2016
 } // namespace daw

@@ -2036,20 +2036,21 @@ namespace daw {
 				return count_valid_ipv7( test_str_001 );
 			}
 
-			static_assert( !is_palindrome( "abcd" ) ); 
-			static_assert( is_palindrome( "bddb" ) ); 
-			static_assert( is_palindrome( "xyyx" ) ); 
-			static_assert( is_palindrome( "ioxxoj" ) ); 
+			static_assert( !has_abba( "abcd" ) ); 
+			static_assert( has_abba( "bddb" ) ); 
+			static_assert( has_abba( "xyyx" ) ); 
+			static_assert( has_abba( "ioxxoj" ) ); 
 
-			static_assert( is_valid_ipv7( "abcd", "bddb", "xyyx" ) == 0 );
-			static_assert( count_valid_ipv7( "abba[mnop]qrst" ) == 1 );
-			static_assert( count_valid_ipv7( "abcd[bddb]xyyx" ) == 0 );
-			static_assert( count_valid_ipv7( "aaaa[qwer]tyui" ) == 0 );
-			static_assert( count_valid_ipv7( "ioxxoj[asdfgh]zxcvbn" ) == 1 );
+			static_assert( is_valid_ipv7( "abba[mnop]qrst" ) );
+			static_assert( !is_valid_ipv7( "abcd[bddb]xyyx" ) );
+			static_assert( is_valid_ipv7( "aaaa[qwer]tyui" ) );
+			static_assert( is_valid_ipv7( "ioxxoj[asdfgh]zxcvbn" ) );
+
 		} // namespace day_07
 	}   // namespace aoc_2016
 } // namespace daw
 
 int main( ) {
-	std::cout << "valid ipv7's: " << daw::aoc_2016::day_07::test_001( ) << '\n';
+	auto result = daw::aoc_2016::day_07::test_001( );
+	std::cout << "valid ipv7's: " << result << '\n';
 }
