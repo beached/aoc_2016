@@ -31,6 +31,9 @@ set( SOURCE_FILES
 
 #add_library ( aoc_2018_lib STATIC ${HEADER_FILES} ${SOURCE_FILES} )
 #add_dependencies( aoc_2018_lib dependency_stub )
+add_executable( day_01_test ${HEADER_FOLDER}/day_01.h ${HEADER_FILES} ${TEST_FOLDER}/day_01_test.cpp )
+target_link_libraries( day_01_test ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${COMPILER_SPECIFIC_LIBS} ${CMAKE_THREAD_LIBS_INIT} )
+add_dependencies( day_01_test dependency_stub )
 
 add_executable( day_07_test ${HEADER_FOLDER}/day_07.h ${HEADER_FILES} ${TEST_FOLDER}/day_07_test.cpp )
 target_link_libraries( day_07_test ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${COMPILER_SPECIFIC_LIBS} ${CMAKE_THREAD_LIBS_INIT} )
